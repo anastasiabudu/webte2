@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nobel Laureates</title>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 8px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 24px;
+            color: #7f8c8d;
+        }
+        .close:hover {
+            color: #34495e;
+        }
+        .search-container {
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        #search {
+            padding: 12px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        /* Основные стили кнопок */
+button {
+    padding: 12px 24px;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    margin: 5px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Специфичные стили для разных кнопок */
+.button-container button:nth-child(1) {
+    background-color: #3498db; /* Синий - Add Laureate */
+    border-bottom: 3px solid #2980b9;
+}
+
+.button-container button:nth-child(1):hover {
+    background-color: #2980b9;
+}
+
+.button-container button:nth-child(2) {
+    background-color: #2ecc71; /* Зеленый - Show Upload Options */
+    border-bottom: 3px solid #27ae60;
+}
+
+.button-container button:nth-child(2):hover {
+    background-color: #27ae60;
+}
+
+.button-container button:nth-child(3) {
+    background-color: #9b59b6; /* Фиолетовый - API Documentation */
+    border-bottom: 3px solid #8e44ad;
+}
+
+.button-container button:nth-child(3):hover {
+    background-color: #8e44ad;
+}
+
+/* Стили для кнопок в форме */
+#laureate-form button {
+    background-color: #3498db;
+    border-bottom: 3px solid #2980b9;
+}
+
+#laureate-form button:hover {
+    background-color: #2980b9;
+}
+
+#uploadForm button {
+    background-color: #2ecc71;
+    border-bottom: 3px solid #27ae60;
+}
+
+#uploadForm button:hover {
+    background-color: #27ae60;
+}
+
+/* Стили для кнопок действий в таблице */
+.action-buttons button {
+    padding: 6px 12px;
+    font-size: 12px;
+    border-bottom-width: 2px;
+}
+
+.edit-btn {
+    background-color: #f39c12; /* Оранжевый */
+    border-bottom: 2px solid #e67e22;
+}
+
+.edit-btn:hover {
+    background-color: #e67e22;
+}
+
+.delete-btn {
+    background-color: #e74c3c; /* Красный */
+    border-bottom: 2px solid #c0392b;
+}
+
+.delete-btn:hover {
+    background-color: #c0392b;
+}
+
+/* Анимация при наведении на кнопки */
+button {
+    transition: all 0.2s ease;
+}
+
+button:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+        .button-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        #uploadForm {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        #uploadForm input[type="file"] {
+            margin-right: 10px;
+        }
+        #laureates-table {
+            width: 100% !important;
+            margin-top: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        #laureate-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        #laureate-form label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        #laureate-form input,
+        #laureate-form select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        #laureate-form button {
+            grid-column: span 2;
+            margin-top: 10px;
+        }
+        .message {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-block;
+            transition: all 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .message.warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeeba;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message {
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        #uploadForm {
+            display: none; /* Hidden by default */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .upload-toggle {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .upload-toggle button {
+            background-color: #2ecc71;
+        }
+        
+        .upload-toggle button:hover {
+            background-color: #27ae60;
+        }
+        
+        /* Styles for the action buttons in the table */
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .action-buttons button {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .edit-btn {
+            background-color: #f39c12;
+        }
+        
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+        
+        .delete-btn {
+            background-color: #e74c3c;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #laureate-form {
+                grid-template-columns: 1fr;
+            }
+            #laureate-form button {
+                grid-column: span 1;
+            }
+            .button-container {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        .button-container button:nth-child(3) {
+            background-color: #9b59b6; /* Фиолетовый цвет */
+        }
+        .button-container button:nth-child(3):hover {
+            background-color: #8e44ad;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nobel Laureates</h1>
+
+    <!-- Button container for aligned buttons -->
+    <div class="button-container">
+        <button onclick="openAddModal()">Add Laureate</button>
+        <button onclick="toggleUploadForm()">Show Upload Options</button>
+        <button onclick="window.location.href='api-docs.php'">API Documentation</button>
+    </div>
+
+    <!-- JSON file upload form (hidden by default) -->
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="jsonFile" id="jsonFile" accept=".json">
+        <button type="submit">Upload JSON File</button>
+    </form>
+
+    <!-- Message display -->
+    <div id="message"></div>
+
+    <!-- Laureates table -->
+    <table id="laureates-table" class="display">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Year</th>
+                <th>Category</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Data will be added via JavaScript -->
+        </tbody>
+    </table>
+
+    <!-- Add/Edit modal -->
+    <div id="add-edit-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddEditModal()">&times;</span>
+            <h2 id="add-edit-modal-title">Add Laureate</h2>
+            <form id="laureate-form">
+                <div>
+                    <label for="fullname">Full Name:</label>
+                    <input type="text" id="fullname" name="fullname" required>
+                </div>
+                
+                <div>
+                    <label for="sex">Sex:</label>
+                    <select id="sex" name="sex" required>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="birth_year">Birth Year:</label>
+                    <input type="number" id="birth_year" name="birth_year" required>
+                </div>
+                
+                <div>
+                    <label for="death_year">Death Year:</label>
+                    <input type="number" id="death_year" name="death_year">
+                </div>
+                
+                <div>
+                    <label for="country">Country:</label>
+                    <input type="text" id="country" name="country" required>
+                </div>
+                
+                <div>
+                    <label for="year">Prize Year:</label>
+                    <input type="number" id="year" name="year" required>
+                </div>
+                
+                <div>
+                    <label for="category">Category:</label>
+                    <input type="text" id="category" name="category" required>
+                </div>
+                
+                <div>
+                    <label for="contribution_sk">Contribution (SK):</label>
+                    <input type="text" id="contribution_sk" name="contribution_sk">
+                </div>
+                
+                <div>
+                    <label for="contribution_en">Contribution (EN):</label>
+                    <input type="text" id="contribution_en" name="contribution_en">
+                </div>
+                
+                <div>
+                    <label for="organisation">Organization:</label>
+                    <input type="text" id="organisation" name="organisation">
+                </div>
+
+                <button type="submit">Save</button>
+            </form>
+            <div id="error-message" style="color: red; display: none;"></div>
+        </div>
+    </div>
+    
+    <!-- jQuery and DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- Our script -->
+    <script src="app.js"></script>
+</body>
+</html>
+

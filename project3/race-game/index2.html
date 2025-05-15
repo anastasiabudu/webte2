@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Racing Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: white;
+            text-align: center;
+            box-sizing: border-box;
+            overflow-x: hidden;
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        h1 {
+            font-family: 'Russo One', sans-serif;
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: #fff;
+            letter-spacing: 2px;
+            animation: pulse 2s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #e60073, 0 0 20px #e60073; }
+            to { text-shadow: 0 0 10px #fff, 0 0 20px #ff4da6, 0 0 30px #ff4da6, 0 0 40px #ff4da6; }
+        }
+
+        #startMenu {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            max-width: 500px;
+            width: 90%;
+            backdrop-filter: blur(5px);
+            transition: all 0.5s ease;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #startMenu h2 {
+            margin-top: 0;
+            color: #f8f8f8;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        input {
+            padding: 10px;
+            width: 60px;
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            border: none;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            transform: scale(1.05);
+        }
+
+        button {
+            background: linear-gradient(to right, #4CAF50, #2E8B57);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            font-weight: bold;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: linear-gradient(to right, #45a049, #2E7D32);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: rotate(45deg);
+            transition: all 0.3s;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        canvas {
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 100%;
+            transition: all 0.5s;
+        }
+
+        .controls-info {
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #4CAF50;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .controls-info h3 {
+            color: #FFD700;
+            margin-top: 0;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .controls-info p {
+            margin: 8px 0;
+        }
+
+        #gameContainer {
+            display: none;
+            margin-top: 20px;
+            position: relative;
+            width: 1000px;
+            height: auto;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            animation: zoomIn 0.5s ease-out;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        @keyframes zoomIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        canvas {
+            width: 1000px;
+            height: 600px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        #statusPanel {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 20px;
+            width: 100%;
+            animation: slideDown 0.5s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .playerStatus {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            width: 220px;
+            text-align: center;
+            font-family: 'Orbitron', sans-serif;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            border-top: 3px solid;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .playerStatus:nth-child(1) {
+            border-top-color: #FF5252;
+        }
+
+        .playerStatus:nth-child(2) {
+            border-top-color: #2196F3;
+        }
+
+        .playerStatus:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .playerStatus::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 25%, rgba(255, 255, 255, 0.05) 50%, transparent 75%);
+            background-size: 200% 200%;
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { background-position: 100% 100%; }
+            100% { background-position: 0 0; }
+        }
+
+        .playerStatus h3 {
+            margin-bottom: 10px;
+            font-size: 20px;
+            color: #FFD700;
+            text-shadow: 0 0 5px rgba(255, 215, 0, 0.5);
+        }
+
+        .playerStatus p {
+            margin: 8px 0;
+            font-size: 16px;
+        }
+
+        /* Анимация для завершения гонки */
+        @keyframes confetti {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            animation: confetti 3s ease-out forwards;
+        }
+
+        /* Модальное окно */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.5s;
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            width: 90%;
+            animation: slideUp 0.5s;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            color: #FFD700;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .modal-results {
+            font-size: 1.3rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-button {
+            background: linear-gradient(to right, #4CAF50, #2E8B57);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 20px;
+        }
+
+        .modal-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1100px) {
+            #gameContainer {
+                width: 95%;
+            }
+            
+            canvas {
+                width: 100%;
+                height: auto;
+            }
+            
+            #statusPanel {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>RACING CHAMPIONSHIP</h1>
+    
+    <div id="startMenu">
+        <h2>RACE SETUP</h2>
+        <label for="lapsInput">Number of Laps:</label>
+        <input type="number" id="lapsInput" min="1" max="10" value="3">
+        <button id="startButton">START RACE</button>
+        
+        <div class="controls-info">
+            <h3>CONTROLS</h3>
+            <p><strong>Player 1 (Blue):</strong> Arrow Keys</p>
+            <p><strong>Player 2 (Yellow):</strong> W, A, S, D</p>
+        </div>
+    </div>
+
+    <div id="gameContainer" style="display: none;">
+        <div id="statusPanel">
+            <div class="playerStatus" id="player1Status">
+                <h3>Player 1 (Blue)</h3>
+                <p>Lap: 0/0</p>
+                <p>Speed: 0.0</p>
+                <p>Penalty: 0.0</p>
+                <p>Time: 0.0s</p>
+            </div>
+            <div class="playerStatus" id="player2Status">
+                <h3>Player 2 (Yellow)</h3>
+                <p>Lap: 0/0</p>
+                <p>Speed: 0.0</p>
+                <p>Penalty: 0.0</p>
+                <p>Time: 0.0s</p>
+            </div>
+        </div>
+        <canvas id="gameCanvas" width="1000" height="600"></canvas>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('gameCanvas');
+            const startMenu = document.getElementById('startMenu');
+            const gameContainer = document.getElementById('gameContainer');
+            
+            if (!canvas) {
+                console.error('Canvas element not found!');
+                return;
+            }
+            
+            const ctx = canvas.getContext('2d');
+            const trackImage = new Image();
+            const maskImage = new Image();
+            const blueCarImage = new Image();
+            const yellowCarImage = new Image();
+            
+            trackImage.src = "photo/race.png";
+            maskImage.src = "photo/race_mask1.png";
+            blueCarImage.src = "photo/blue.png";
+            yellowCarImage.src = "photo/yellow.png";
+
+            const maskCanvas = document.createElement('canvas');
+            const maskCtx = maskCanvas.getContext('2d');
+
+            // Game parameters
+            let lapsRequired = 3;
+            let gameRunning = false;
+            let gameStartTime = 0;
+
+            // Finish line
+            const finishLine = {
+                x: 489,
+                y: 758,
+                width: 38,
+                height: 165
+            };
+                
+            // Players
+            const players = [
+    {
+        x: 100, 
+        y: 400, 
+        angle: Math.PI, // 180 градусов (смотрит вверх)
+        color: "#2196F3", 
+        accentColor: "#BBDEFB",
+        laps: 0, 
+        penalty: 0, 
+        finished: false,
+        controls: { up: "ArrowUp", left: "ArrowLeft", right: "ArrowRight", down: "ArrowDown" },
+        keys: {}, 
+        width: 40, 
+        height: 70,
+        lastFinishCross: 0,
+        image: blueCarImage
+    },
+    {
+        x: 130, 
+        y: 400, 
+        angle: Math.PI, // 180 градусов (смотрит вверх)
+        color: "#FFD700", 
+        accentColor: "#FFEB3B",
+        laps: 0, 
+        penalty: 0, 
+        finished: false,
+        controls: { up: "KeyW", left: "KeyA", right: "KeyD", down: "KeyS" },
+        keys: {}, 
+        width: 40, 
+        height: 70,
+        lastFinishCross: 0,
+        image: yellowCarImage
+    }
+];
+
+            // Image loading
+            let imagesLoaded = 0;
+            const totalImages = 4; // track, mask, blue car, yellow car
+            
+            function imageLoaded() {
+                if (++imagesLoaded === totalImages) initGame();
+            }
+
+            trackImage.onload = imageLoaded;
+            maskImage.onload = imageLoaded;
+            blueCarImage.onload = imageLoaded;
+            yellowCarImage.onload = imageLoaded;
+
+            function initGame() {
+                canvas.width = trackImage.width;
+                canvas.height = trackImage.height;
+                maskCanvas.width = trackImage.width;
+                maskCanvas.height = trackImage.height;
+                maskCtx.drawImage(maskImage, 0, 0);
+            }
+
+            function drawCar(player) {
+    ctx.save();
+    ctx.translate(player.x, player.y);
+    ctx.rotate(player.angle);
+    if (player.penalty > 2 && Date.now() % 200 < 100) {
+        ctx.filter = 'brightness(1.5) saturate(3)';
+    }
+    // Отрисовка машины без красного квадрата
+    if (player.image.complete) {
+        ctx.drawImage(player.image, -player.width/2, -player.height/2, player.width, player.height);
+    } else {
+        ctx.fillStyle = player.color;
+        ctx.fillRect(-player.width/2, -player.height/2, player.width, player.height);
+    }
+    
+    ctx.restore();
+}
+            
+function isOnTrack(x, y) {
+                if (x < 0 || y < 0 || x >= maskCanvas.width || y >= maskCanvas.height) return false;
+                const pixel = maskCtx.getImageData(Math.floor(x), Math.floor(y), 1, 1).data;
+                return pixel[0] > 200 || pixel[1] > 200 || pixel[2] > 200;
+            }
+
+            function updatePlayer(player) {
+    if (player.finished) return;
+
+    // Управление
+    if (player.keys[player.controls.up]) {
+        player.speed = Math.min(player.speed + 0.1, 5);
+    }
+    if (player.keys[player.controls.down]) {
+        player.speed = Math.max(player.speed - 0.1, -2);
+    }
+
+    // Поворот
+    if (player.keys[player.controls.left]) {
+        player.angle -= 0.05 * (1 + Math.abs(player.speed)/5); // Более резкий поворот на скорости
+    }
+    if (player.keys[player.controls.right]) {
+        player.angle += 0.05 * (1 + Math.abs(player.speed)/5);
+    }
+
+    // Расчет движения
+    const moveX = Math.sin(player.angle) * player.speed;
+    const moveY = -Math.cos(player.angle) * player.speed;
+    const newX = player.x + moveX;
+    const newY = player.y + moveY;
+
+    // Проверка столкновений с трассой
+    if (isOnTrack(newX, newY)) {
+        player.x = newX;
+        player.y = newY;
+    } else {
+        // Столкновение с границей - серьезный штраф
+        player.speed *= -0.7;
+        player.penalty += 1.0; // Увеличенный штраф
+        
+        // Эффект "отбрасывания" от стены
+        player.x -= moveX * 0.5;
+        player.y -= moveY * 0.5;
+        
+        // Дополнительное замедление
+        player.speed *= 0.8;
+    }
+
+    // Проверка столкновений между машинами
+    players.forEach(otherPlayer => {
+        if (otherPlayer !== player) {
+            const dx = player.x - otherPlayer.x;
+            const dy = player.y - otherPlayer.y;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            
+            if (distance < 50) {
+                // Штраф только той машине, которая ударила (определяем по скорости)
+                if (Math.abs(player.speed) > Math.abs(otherPlayer.speed)) {
+                    player.penalty += 0.5;
+                }
+                
+                // Эффект отталкивания
+                const force = 0.5;
+                player.x += dx * force / distance;
+                player.y += dy * force / distance;
+                otherPlayer.x -= dx * force / distance;
+                otherPlayer.y -= dy * force / distance;
+            }
+        }
+    });
+
+    // Трение
+    player.speed *= 0.96;
+    if (Math.abs(player.speed) < 0.05) player.speed = 0;
+
+    checkLap(player);
+}
+            function checkLap(player) {
+                if (player.x > finishLine.x && 
+                    player.x < finishLine.x + finishLine.width &&
+                    player.y > finishLine.y && 
+                    player.y < finishLine.y + finishLine.height) {
+                    
+                    const now = Date.now();
+                    if (now - player.lastFinishCross > 1000) {
+                        player.laps++;
+                        player.lastFinishCross = now;
+                        
+                        // Эффект при завершении круга
+                        if (player.laps < lapsRequired) {
+                            createLapEffect(player.x, player.y, player.color);
+                        }
+                        
+                        if (player.laps >= lapsRequired) {
+                            player.finished = true;
+                            player.time = now - gameStartTime;
+                            createFinishEffect(player.x, player.y, player.color);
+                            checkGameEnd();
+                        }
+                    }
+                }
+            }
+
+            function createLapEffect(x, y, color) {
+                for (let i = 0; i < 20; i++) {
+                    setTimeout(() => {
+                        const particle = document.createElement('div');
+                        particle.className = 'confetti-particle';
+                        particle.style.left = `${x + Math.random() * 30 - 15}px`;
+                        particle.style.top = `${y + Math.random() * 30 - 15}px`;
+                        particle.style.backgroundColor = color;
+                        particle.style.width = `${Math.random() * 8 + 4}px`;
+                        particle.style.height = particle.style.width;
+                        particle.style.animationDuration = `${Math.random() * 1 + 0.5}s`;
+                        document.body.appendChild(particle);
+                        
+                        setTimeout(() => {
+                            particle.remove();
+                        }, 1000);
+                    }, i * 50);
+                }
+            }
+
+            function createFinishEffect(x, y, color) {
+                for (let i = 0; i < 100; i++) {
+                    setTimeout(() => {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'confetti';
+                        confetti.style.left = `${x + Math.random() * 100 - 50}px`;
+                        confetti.style.top = `${y + Math.random() * 100 - 50}px`;
+                        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                        confetti.style.width = `${Math.random() * 10 + 5}px`;
+                        confetti.style.height = `${Math.random() * 10 + 5}px`;
+                        confetti.style.animationDuration = `${Math.random() * 2 + 1}s`;
+                        document.body.appendChild(confetti);
+                        
+                        setTimeout(() => {
+                            confetti.remove();
+                        }, 3000);
+                    }, i * 30);
+                }
+            }
+
+            function showWinnerModal(winner, time1, time2) {
+                const modal = document.createElement('div');
+                modal.className = 'modal-overlay';
+                
+                const modalContent = document.createElement('div');
+                modalContent.className = 'modal-content';
+                
+                const title = document.createElement('h2');
+                title.className = 'modal-title';
+                title.textContent = `WINNER: ${winner}`;
+                
+                const results = document.createElement('div');
+                results.className = 'modal-results';
+                results.innerHTML = `
+                    <p>Blue: ${time1}s</p>
+                    <p>Yellow: ${time2}s</p>
+                `;
+                
+                const restartBtn = document.createElement('button');
+                restartBtn.className = 'modal-button';
+                restartBtn.textContent = 'RESTART RACE';
+                restartBtn.onclick = function() {
+                    document.body.removeChild(modal);
+                    startGame();
+                };
+                
+                modalContent.appendChild(title);
+                modalContent.appendChild(results);
+                modalContent.appendChild(restartBtn);
+                modal.appendChild(modalContent);
+                document.body.appendChild(modal);
+                
+                // Запускаем конфетти для победителя
+                createFinishEffect(window.innerWidth/2, window.innerHeight/2, winner.includes('Blue') ? '#2196F3' : '#FFD700');
+            }
+
+            function checkGameEnd() {
+                if (players.every(p => p.finished)) {
+                    gameRunning = false;
+                    const winner = players[0].time < players[1].time ? "Player 1 (Blue)" : "Player 2 (Yellow)";
+                    const time1 = (players[0].time/1000).toFixed(1);
+                    const time2 = (players[1].time/1000).toFixed(1);
+                    
+                    showWinnerModal(winner, time1, time2);
+                }
+            }
+
+            function gameLoop() {
+                if (!gameRunning) return;
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(trackImage, 0, 0);
+                
+                // Рисуем финишную линию с эффектом свечения
+                ctx.globalAlpha = 0.7;
+                ctx.fillStyle = '#FFFFFF';
+                ctx.fillRect(finishLine.x, finishLine.y, finishLine.width, finishLine.height);
+                ctx.globalAlpha = 1.0;
+                
+                // Анимация свечения финишной линии
+                const glowIntensity = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+                ctx.shadowColor = '#00FF00';
+                ctx.shadowBlur = 10 * glowIntensity;
+                ctx.strokeStyle = `rgba(0, 255, 0, ${glowIntensity})`;
+                ctx.lineWidth = 2;
+                ctx.strokeRect(finishLine.x, finishLine.y, finishLine.width, finishLine.height);
+                ctx.shadowBlur = 0;
+                
+                players.forEach(p => {
+                    updatePlayer(p);
+                    drawCar(p);
+                });
+            
+                updatePlayerStatus();
+            
+                requestAnimationFrame(gameLoop);
+            }
+            
+            function startGame() {
+                // Get laps from input
+                const lapsInput = document.getElementById('lapsInput');
+                lapsRequired = lapsInput ? parseInt(lapsInput.value) || 3 : 3;
+                
+                // Hide start menu and show game with animation
+                startMenu.style.animation = 'fadeOut 0.5s forwards';
+                setTimeout(() => {
+                    startMenu.style.display = 'none';
+                    gameContainer.style.display = 'block';
+                }, 500);
+                
+                // Reset players
+                players.forEach((p, index) => {
+                    p.x = index === 0 ? 100 : 130;  // Новые позиции
+                    p.y = 400;  // Новая позиция по Y
+                    p.angle = Math.PI;  // Новый угол
+                    p.speed = 0;
+                    p.laps = 0;
+                    p.penalty = 0;
+                    p.finished = false;
+                    p.lastFinishCross = 0;
+                });
+                
+                gameStartTime = Date.now();
+                gameRunning = true;
+                gameLoop();
+            }
+            
+            function updatePlayerStatus() {
+    const player1Status = document.getElementById('player1Status');
+    const player2Status = document.getElementById('player2Status');
+    
+    players.forEach((p, i) => {
+        const playerStatus = i === 0 ? player1Status : player2Status;
+        const penaltyColor = p.penalty > 3 ? 'red' : 'white';
+        
+        playerStatus.innerHTML = `
+            <h3>Player ${i+1} (${p.color === "#2196F3" ? "Blue" : "Yellow"})</h3>
+            <p>Lap: ${p.laps}/${lapsRequired}</p>
+            <p>Speed: ${Math.abs(p.speed).toFixed(1)}</p>
+            <p style="color: ${penaltyColor}">Penalty: ${p.penalty.toFixed(1)}</p>
+            <p>Time: ${p.finished ? (p.time/1000).toFixed(1) : ((Date.now()-gameStartTime)/1000).toFixed(1)}s</p>
+        `;
+    });
+}
+            // Keyboard controls
+            window.addEventListener('keydown', e => {
+                players.forEach(p => {
+                    if (Object.values(p.controls).includes(e.code)) {
+                        p.keys[e.code] = true;
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            window.addEventListener('keyup', e => {
+                players.forEach(p => {
+                    if (Object.values(p.controls).includes(e.code)) {
+                        p.keys[e.code] = false;
+                    }
+                });
+            });
+
+            // Start button
+            const startButton = document.getElementById('startButton');
+            if (startButton) {
+                startButton.addEventListener('click', startGame);
+            }
+        });
+    </script>
+</body>
+</html>

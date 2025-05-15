@@ -1,0 +1,219 @@
+openapi: 3.0.0
+info:
+  title: 'API Documentation'
+  description: 'Description removed for better illustration of structure.'
+  contact:
+    name: company
+    url: 'https://example.test'
+    email: admin@example.test
+  license:
+    name: 'Apache 2.0'
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  version: 1.0.0
+paths:
+  '/laureates/{id}':
+    get:
+      tags:
+        - laureates
+      summary: 'Get a laureate by ID'
+      operationId: 8cb55c4ea858c47310df2aa6c6686ffe
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of the laureate'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Successful operation'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Laureate'
+        '404':
+          description: 'Laureate not found'
+        '500':
+          description: 'Server error'
+    put:
+      tags:
+        - laureates
+      summary: 'Update laureate data'
+      operationId: cf894f8b803b491397bd4ca31d89977b
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of the laureate'
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        description: 'Data for updating the laureate'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                fullname:
+                  type: string
+                  example: 'Albert Einstein'
+                sex:
+                  type: string
+                  example: M
+                birth_year:
+                  type: string
+                  example: '1879'
+                death_year:
+                  type: string
+                  example: '1955'
+                  nullable: true
+                organisation:
+                  type: string
+                  example: 'Princeton University'
+                  nullable: true
+              type: object
+      responses:
+        '200':
+          description: 'Data successfully updated'
+        '404':
+          description: 'Laureate not found'
+        '500':
+          description: 'Server error'
+    delete:
+      tags:
+        - laureates
+      summary: 'Delete a laureate by ID'
+      description: 'Delete a laureate by ID.'
+      operationId: a634e3846127c01a0e331f58eea2be86
+      parameters:
+        -
+          name: id
+          in: path
+          description: 'ID of the laureate'
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'Laureate successfully deleted'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Laureate successfully deleted' }
+                type: object
+        '404':
+          description: 'Laureate not found'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Laureate not found' }
+                type: object
+        '500':
+          description: 'Server error'
+          content:
+            application/json:
+              schema:
+                properties:
+                  message: { type: string, example: 'Server error' }
+                type: object
+  /laureates:
+    post:
+      tags:
+        - laureates
+      summary: 'Add a new laureate'
+      operationId: 7a9b54ca4da970a94cb871c3280eea28
+      requestBody:
+        description: 'Data for adding a new laureate'
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                fullname:
+                  type: string
+                  example: 'Albert Einstein'
+                sex:
+                  type: string
+                  example: M
+                birth_year:
+                  type: string
+                  example: '1879'
+                death_year:
+                  type: string
+                  example: '1955'
+                  nullable: true
+                organisation:
+                  type: string
+                  example: 'Princeton University'
+                  nullable: true
+              type: object
+      responses:
+        '200':
+          description: 'Laureate successfully added'
+          content:
+            application/json:
+              schema:
+                properties:
+                  id: { type: integer, example: 1 }
+                type: object
+        '400':
+          description: 'Invalid data'
+        '500':
+          description: 'Server error'
+components:
+  schemas:
+    Laureate:
+      properties:
+        laureate_id:
+          type: integer
+          example: 1
+        fullname:
+          type: string
+          example: 'Albert Einstein'
+        sex:
+          type: string
+          example: M
+        birth_year:
+          type: string
+          example: '1879'
+        death_year:
+          type: string
+          example: '1955'
+        country:
+          type: string
+          example: Germany
+        year:
+          type: string
+          example: '1921'
+        category:
+          type: string
+          example: Physics
+        contribution_sk:
+          type: string
+          example: 'Teória relativity'
+        contribution_en:
+          type: string
+          example: 'Theory of relativity'
+        language_sk:
+          type: string
+          example: null
+        language_en:
+          type: string
+          example: null
+        genre_sk:
+          type: string
+          example: null
+        genre_en:
+          type: string
+          example: null
+      type: object
+tags:
+  -
+    name: laureates
+    description: laureates

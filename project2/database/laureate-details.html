@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laureate Details</title>
+    <!-- Подключаем Google Fonts для красивого шрифта -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Подключаем FontAwesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Основные стили */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 2.5rem;
+            color: #007bff;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .details {
+            margin: 20px 0;
+        }
+
+        .details p {
+            font-size: 1.1rem;
+            margin: 10px 0;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+
+        .details p strong {
+            color: #007bff;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .action-buttons button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .action-buttons button:hover {
+            background-color: #0056b3;
+        }
+
+        .action-buttons button i {
+            font-size: 1.2rem;
+        }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        form label {
+            margin-top: 10px;
+            display: block;
+        }
+
+        form input, form select, form textarea {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        form button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        form button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Адаптивный дизайн */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .details p {
+                font-size: 1rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .action-buttons button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Laureate Details</h1>
+    <div class="container">
+        <div class="details">
+            <p><strong>Name:</strong> <span id="name"></span></p>
+            <p><strong>Sex:</strong> <span id="sex"></span></p>
+            <p><strong>Birth Year:</strong> <span id="birth_year"></span></p>
+            <p><strong>Death Year:</strong> <span id="death_year"></span></p>
+            <p><strong>Country:</strong> <span id="country"></span></p>
+            <p><strong>Prize Year:</strong> <span id="year"></span></p>
+            <p><strong>Category:</strong> <span id="category"></span></p>
+            <p><strong>Contribution (SK):</strong> <span id="contribution_sk"></span></p>
+            <p><strong>Contribution (EN):</strong> <span id="contribution_en"></span></p>
+        </div>
+
+        <!-- Кнопки Edit, Delete и Back -->
+        <div class="action-buttons">
+            <button onclick="openEditModal()">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <button onclick="deleteLaureate()">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+            <button onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back
+            </button>
+        </div>
+    </div>
+
+    <!-- Модальное окно для редактирования -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2>Edit Laureate</h2>
+            <form id="editForm">
+                <label for="editName">Name:</label>
+                <input type="text" id="editName" name="name" required>
+                
+                <label for="editSex">Sex:</label>
+                <select id="editSex" name="sex">
+                    <option value="m">Male</option>
+                    <option value="f">Female</option>
+                </select>
+                
+                <label for="editBirthYear">Birth Year:</label>
+                <input type="number" id="editBirthYear" name="birth_year" required>
+                
+                <label for="editDeathYear">Death Year:</label>
+                <input type="number" id="editDeathYear" name="death_year">
+                
+                <label for="editCountry">Country:</label>
+                <input type="text" id="editCountry" name="country">
+                
+                <label for="editYear">Prize Year:</label>
+                <input type="number" id="editYear" name="year" required>
+                
+                <label for="editCategory">Category:</label>
+                <input type="text" id="editCategory" name="category" required>
+                
+                <label for="editContributionSK">Contribution (SK):</label>
+                <textarea id="editContributionSK" name="contribution_sk"></textarea>
+                
+                <label for="editContributionEN">Contribution (EN):</label>
+                <textarea id="editContributionEN" name="contribution_en"></textarea>
+                
+                <button type="submit">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Получаем ID лауреата из URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+
+        // Загружаем данные о лауреате
+        async function fetchLaureateDetails(id) {
+            try {
+                const response = await fetch(`https://node36.webte.fei.stuba.sk/cv3/api/v0/laureates/${id}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                displayLaureateDetails(data[0]);
+            } catch (error) {
+                console.error('Error fetching laureate details:', error);
+                document.body.innerHTML = '<h1>Failed to load laureate details.</h1>';
+            }
+        }
+
+// Отображаем данные на странице
+function displayLaureateDetails(laureate) {
+    document.getElementById('name').textContent = laureate.fullname;
+    document.getElementById('sex').textContent = laureate.sex === 'm' ? 'Male' : 'Female'; // Исправлено сравнение
+    document.getElementById('birth_year').textContent = laureate.birth_year;
+    document.getElementById('death_year').textContent = laureate.death_year || 'Still alive';
+    document.getElementById('country').textContent = laureate.country || 'Not specified';
+    document.getElementById('year').textContent = laureate.year;
+    document.getElementById('category').textContent = laureate.category;
+    document.getElementById('contribution_sk').textContent = laureate.contribution_sk || 'N/A';
+    document.getElementById('contribution_en').textContent = laureate.contribution_en || 'N/A';
+}
+
+// Функция для открытия модального окна
+function openEditModal() {
+    const modal = document.getElementById('editModal');
+    modal.style.display = 'block';
+
+    // Получаем оригинальное значение пола (m/f) из DOM
+    const sexElement = document.getElementById('sex');
+    const isMale = sexElement.textContent === 'Male';
+    
+    // Заполняем форму текущими данными
+    document.getElementById('editName').value = document.getElementById('name').textContent;
+    document.getElementById('editSex').value = isMale ? 'm' : 'f'; // Устанавливаем правильное значение
+    document.getElementById('editBirthYear').value = document.getElementById('birth_year').textContent;
+    document.getElementById('editDeathYear').value = document.getElementById('death_year').textContent === 'Still alive' ? '' : document.getElementById('death_year').textContent;
+    document.getElementById('editCountry').value = document.getElementById('country').textContent === 'Not specified' ? '' : document.getElementById('country').textContent;
+    document.getElementById('editYear').value = document.getElementById('year').textContent;
+    document.getElementById('editCategory').value = document.getElementById('category').textContent;
+    document.getElementById('editContributionSK').value = document.getElementById('contribution_sk').textContent === 'N/A' ? '' : document.getElementById('contribution_sk').textContent;
+    document.getElementById('editContributionEN').value = document.getElementById('contribution_en').textContent === 'N/A' ? '' : document.getElementById('contribution_en').textContent;
+}
+
+        // Функция для закрытия модального окна
+        function closeEditModal() {
+            const modal = document.getElementById('editModal');
+            modal.style.display = 'none';
+        }
+
+        // Функция для удаления лауреата
+        async function deleteLaureate() {
+            if (confirm('Are you sure you want to delete this laureate?')) {
+                try {
+                    const response = await fetch(`https://node36.webte.fei.stuba.sk/cv3/api/v0/laureates/${id}`, {
+                        method: 'DELETE'
+                    });
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    alert('Laureate deleted successfully');
+                    window.location.href = 'index.html'; // Перенаправляем на основную страницу
+                } catch (error) {
+                    console.error('Error deleting laureate:', error);
+                    alert('Failed to delete laureate. Please try again later.');
+                }
+            }
+        }
+
+        // Функция для возврата на главную страницу
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        // Обработка отправки формы редактирования
+        document.getElementById('editForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Собираем данные из формы
+    const formData = {
+        fullname: document.getElementById('editName').value,
+        sex: document.getElementById('editSex').value,
+        birth_year: parseInt(document.getElementById('editBirthYear').value),
+        death_year: document.getElementById('editDeathYear').value || null,
+        country: document.getElementById('editCountry').value,
+        year: parseInt(document.getElementById('editYear').value),
+        category: document.getElementById('editCategory').value,
+        contribution_sk: document.getElementById('editContributionSK').value || '',
+        contribution_en: document.getElementById('editContributionEN').value || ''
+    };
+
+    console.log('Form data to be sent:', formData); // Логируем данные перед отправкой
+
+    const url = `https://node36.webte.fei.stuba.sk/cv3/api/v0/laureates/${id}`; // Используем id из URL
+    const method = 'PUT'; // Метод для редактирования
+
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(formData)
+        });
+
+        const responseText = await response.text();
+        console.log('Server response:', responseText); // Логируем ответ сервера
+
+        if (!response.ok) {
+            if (!responseText) {
+                throw new Error(`HTTP error! status: ${response.status}, no response body`);
+            }
+
+            let errorData;
+            try {
+                errorData = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Failed to parse JSON:', parseError);
+                throw new Error(`HTTP error! status: ${response.status}, invalid JSON response`);
+            }
+
+            if (errorData.data && errorData.data.code === '23000') {
+                alert(`Error: A laureate with the name "${formData.fullname}" already exists.`);
+            } else {
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.message}`);
+            }
+            return;
+        }
+
+        alert('Laureate updated successfully');
+        closeEditModal();
+        fetchLaureateDetails(id); // Обновляем данные на странице
+    } catch (error) {
+        console.error('Error updating laureate:', error);
+        alert('Failed to update laureate. Please try again later.');
+    }
+});
+        // Загружаем данные при открытии страницы
+        if (id) {
+            fetchLaureateDetails(id);
+        } else {
+            document.body.innerHTML = '<h1>Laureate ID not provided.</h1>';
+        }
+    </script>
+</body>
+</html>
